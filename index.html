@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système d'évaluation - Jurys</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .nav {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo-left, .logo-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+        }
+
+        .nav-center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-center h2 {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .login-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            margin: 100px auto;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .login-panel h1 {
+            color: #1a1a2e;
+            margin-bottom: 30px;
+        }
+
+        .login-panel select, .login-panel input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .login-panel button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .admin-panel, .grille-config {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .admin-panel h2, .grille-config h2 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .add-jury-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .add-jury-form .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .add-jury-form label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .add-jury-form input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .jury-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .jury-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .jury-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .jury-card .url {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .btn-admin {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+        }
+
+        .delete-jury-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fee2e2;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        .criteria-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .criteria-config-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .grille-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .grille-preview {
+            background: #f0f2f5;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-criteria {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .preview-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .jury-panel {
+            display: none;
+        }
+
+        .jury-panel.active {
+            display: block;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+        }
+
+        .eval-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .criteria-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .criteria-card .criteria-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .criteria-card .criteria-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .criteria-card input {
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .comment-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .evaluations-table {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        .delete-eval {
+            background: #fee2e2;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #dc2626;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .jury-cards, .criteria-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                flex-direction: column;
+            }
+            .nav {
+                flex-direction: column;
+            }
+            .logo-img {
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="nav hidden" id="navBar">
+        <div class="logo-left">
+            <svg class="logo-img" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="50" rx="10" fill="#1a1a2e"/>
+                <text x="50" y="32" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#667eea" text-anchor="middle">EPSI</text>
+            </svg>
+        </div>
+        <div class="nav-center">
+            <h2>📋 Système d'Évaluation des Projets</h2>
+        </div>
+        <div class="nav-right">
+            <div class="logo-right">
+                <svg class="logo-img" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="50" rx="10" fill="#667eea"/>
+                    <text x="50" y="32" font-family="Arial Black, sans-serif" font-size="18" font-weight="900" fill="#1a1a2e" text-anchor="middle">myDIL</text>
+                </svg>
+            </div>
+            <span id="userNameDisplay" style="font-weight: 600;"></span>
+            <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loginPanel" class="login-panel">
+            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
+                <svg width="80" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="40" rx="8" fill="#1a1a2e"/>
+                    <text x="50" y="26" font-family="Arial Black, sans-serif" font-size="16" font-weight="900" fill="#667eea" text-anchor="middle">EPSI</text>
+                </svg>
+                <svg width="80" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="40" rx="8" fill="#667eea"/>
+                    <text x="50" y="26" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#1a1a2e" text-anchor="middle">myDIL</text>
+                </svg>
+            </div>
+            <h1>🎯 Plateforme d'Évaluation</h1>
+            <select id="jurySelectLogin">
+                <option value="">-- Choisissez votre nom --</option>
+            </select>
+            <input type="password" id="passwordInput" placeholder="Mot de passe">
+            <button onclick="login()">🔐 Se connecter</button>
+            <div style="margin-top: 20px; font-size: 12px; color: #888;">
+                <p>📱 Les jurés utilisent leur QR Code personnalisé</p>
+                <p>👨‍🏫 Admin : admin / admin123</p>
+            </div>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+            <div class="grille-config">
+                <h2>📐 Configuration de la grille d'évaluation</h2>
+                <div class="criteria-config-grid" id="criteriaConfigGrid"></div>
+                <div class="grille-actions">
+                    <button class="btn-admin btn-success" onclick="addCriterion()">➕ Ajouter un critère</button>
+                    <button class="btn-admin" onclick="saveGrilleConfig()">💾 Sauvegarder</button>
+                    <button class="btn-admin" onclick="resetToDefaultGrille()">🔄 Réinitialiser</button>
+                </div>
+                <div class="grille-preview">
+                    <h4>👁️ Aperçu</h4>
+                    <div class="preview-criteria" id="grillePreview"></div>
+                </div>
+            </div>
+
+            <div class="admin-panel">
+                <h2>👨‍🏫 Gestion des Jurés</h2>
+                <div class="add-jury-form">
+                    <div class="form-group">
+                        <label>👤 Nom du juré</label>
+                        <input type="text" id="newJuryName" placeholder="Ex: Jean Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Mot de passe</label>
+                        <input type="text" id="newJuryPassword" placeholder="Mot de passe">
+                    </div>
+                    <button class="btn-admin btn-success" onclick="addJury()">➕ Ajouter</button>
+                </div>
+                <div class="jury-cards" id="juryCardsContainer"></div>
+            </div>
+            
+            <div class="admin-panel">
+                <h2>📊 Toutes les évaluations</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>🔍 Rechercher</label>
+                        <input type="text" id="adminSearch" placeholder="Projet..." oninput="renderAdminTable()">
+                    </div>
+                    <div class="filter-group">
+                        <label>📂 Thématique</label>
+                        <select id="adminThemeFilter" onchange="renderAdminTable()">
+                            <option value="">Toutes</option>
+                            <option value="Développement Web">💻 Développement Web</option>
+                            <option value="Cybersécurité">🔒 Cybersécurité</option>
+                            <option value="Data & IA">🤖 Data & IA</option>
+                            <option value="Réseaux">🌐 Réseaux</option>
+                            <option value="Design UX/UI">🎨 Design UX/UI</option>
+                            <option value="DevOps & Cloud">☁️ DevOps & Cloud</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>⭐ Note min</label>
+                        <input type="number" id="adminMinScore" step="0.1" min="0" max="5" oninput="renderAdminTable()">
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <div id="adminTableView"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="juryPanel" class="jury-panel">
+            <div class="welcome-card" id="welcomeBanner"></div>
+            <div class="eval-card">
+                <h3>📝 Nouvelle évaluation</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🏷️ Projet</label>
+                        <input type="text" id="projectName" placeholder="Ex: Cyber Learn">
+                    </div>
+                    <div class="form-group">
+                        <label>📂 Thématique</label>
+                        <select id="thematic">
+                            <option value="Développement Web">💻 Développement Web</option>
+                            <option value="Cybersécurité">🔒 Cybersécurité</option>
+                            <option value="Data & IA">🤖 Data & IA</option>
+                            <option value="Réseaux">🌐 Réseaux</option>
+                            <option value="Design UX/UI">🎨 Design UX/UI</option>
+                            <option value="DevOps & Cloud">☁️ DevOps & Cloud</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🎯 Cible</label>
+                        <input type="text" id="target" placeholder="Public visé">
+                    </div>
+                </div>
+                <div class="criteria-grid" id="dynamicCriteriaGrid"></div>
+                <div class="comment-group">
+                    <textarea id="comments" rows="3" placeholder="Commentaires..."></textarea>
+                </div>
+                <button class="btn-primary" onclick="saveEvaluation()">✅ Enregistrer</button>
+            </div>
+            <div class="evaluations-table">
+                <h3>📋 Mes évaluations</h3>
+                <div id="myEvaluationsTable"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    let evaluationsData = {};
+    let currentUser = null;
+    let isAdmin = false;
+    
+    let jurors = {
+        "admin": { password: "admin123", isAdmin: true }
+    };
+    
+    let grilleConfig = {
+        criteria: [
+            { id: "c1", name: "Créativité", icon: "🎨", order: 1 },
+            { id: "c2", name: "Technicité", icon: "⚙️", order: 2 },
+            { id: "c3", name: "Design", icon: "🎯", order: 3 },
+            { id: "c4", name: "Présentation", icon: "🎤", order: 4 },
+            { id: "c5", name: "Aboutissement", icon: "🏁", order: 5 }
+        ]
+    };
+
+    function loadData() {
+        const savedJurors = localStorage.getItem("jurors");
+        if (savedJurors) {
+            jurors = JSON.parse(savedJurors);
+        } else {
+            jurors["GHANMI Hanen"] = { password: "jury1" };
+            jurors["LIGNIERES Isabelle"] = { password: "jury2" };
+            jurors["BENGONO Stevie"] = { password: "jury3" };
+            jurors["LARCHER Stéphane"] = { password: "jury4" };
+            saveJurors();
+        }
+        const savedEvals = localStorage.getItem("evaluationsDataGlobal");
+        if (savedEvals) evaluationsData = JSON.parse(savedEvals);
+        const savedGrille = localStorage.getItem("grilleConfig");
+        if (savedGrille) grilleConfig = JSON.parse(savedGrille);
+    }
+    
+    function saveJurors() { localStorage.setItem("jurors", JSON.stringify(jurors)); }
+    function saveData() { localStorage.setItem("evaluationsDataGlobal", JSON.stringify(evaluationsData)); }
+    function saveGrilleConfig() { localStorage.setItem("grilleConfig", JSON.stringify(grilleConfig)); alert("✅ Sauvegardé !"); renderGrillePreview(); }
+    
+    function addJury() {
+        const name = document.getElementById('newJuryName').value.trim();
+        const password = document.getElementById('newJuryPassword').value.trim();
+        if (!name || !password) { alert("Champs requis"); return; }
+        if (jurors[name]) { alert("Juré existe déjà"); return; }
+        jurors[name] = { password: password };
+        saveJurors();
+        document.getElementById('newJuryName').value = '';
+        document.getElementById('newJuryPassword').value = '';
+        updateLoginSelect();
+        renderAdminPanel();
+        alert(`✅ ${name} ajouté`);
+    }
+    
+    function deleteJury(juryName) {
+        if (juryName === 'admin') { alert("Impossible"); return; }
+        if (confirm(`Supprimer ${juryName} ?`)) {
+            for (let project of Object.keys(evaluationsData)) {
+                if (evaluationsData[project].evaluations[juryName]) {
+                    delete evaluationsData[project].evaluations[juryName];
+                }
+                if (Object.keys(evaluationsData[project].evaluations).length === 0) {
+                    delete evaluationsData[project];
+                }
+            }
+            delete jurors[juryName];
+            saveJurors();
+            saveData();
+            updateLoginSelect();
+            renderAdminPanel();
+        }
+    }
+    
+    function resetJuryEvaluations(juryName) {
+        if (confirm(`Réinitialiser les évaluations de ${juryName} ?`)) {
+            for (let project of Object.keys(evaluationsData)) {
+                if (evaluationsData[project].evaluations[juryName]) {
+                    delete evaluationsData[project].evaluations[juryName];
+                }
+                if (Object.keys(evaluationsData[project].evaluations).length === 0) {
+                    delete evaluationsData[project];
+                }
+            }
+            saveData();
+            renderAdminPanel();
+        }
+    }
+    
+    function generateToken(juryName) {
+        const token = btoa(`${juryName}-${Date.now()}-${Math.random()}`);
+        const links = JSON.parse(localStorage.getItem("juryLinks") || "{}");
+        links[juryName] = token;
+        localStorage.setItem("juryLinks", JSON.stringify(links));
+        return token;
+    }
+    
+    function getJuryLink(juryName) {
+        const links = JSON.parse(localStorage.getItem("juryLinks") || "{}");
+        if (!links[juryName]) links[juryName] = generateToken(juryName);
+        localStorage.setItem("juryLinks", JSON.stringify(links));
+        return `${window.location.origin}${window.location.pathname}?token=${links[juryName]}`;
+    }
+    
+    function checkUrlToken() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+            const links = JSON.parse(localStorage.getItem("juryLinks") || "{}");
+            for (let [juryName, savedToken] of Object.entries(links)) {
+                if (savedToken === token) {
+                    currentUser = juryName;
+                    isAdmin = false;
+                    showJuryPanel();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    function updateLoginSelect() {
+        const select = document.getElementById('jurySelectLogin');
+        select.innerHTML = '<option value="">-- Choisissez --</option>';
+        for (let jury of Object.keys(jurors)) {
+            select.innerHTML += `<option value="${jury}">${jury}${jury === 'admin' ? ' (Admin)' : ''}</option>`;
+        }
+    }
+    
+    function login() {
+        const username = document.getElementById('jurySelectLogin').value;
+        const password = document.getElementById('passwordInput').value;
+        if (!username) { alert("Sélectionnez un nom"); return; }
+        if (!jurors[username] || jurors[username].password !== password) { alert("Mot de passe incorrect"); return; }
+        currentUser = username;
+        isAdmin = jurors[username].isAdmin === true;
+        if (isAdmin) showAdminPanel();
+        else showJuryPanel();
+    }
+    
+    function logout() {
+        currentUser = null;
+        isAdmin = false;
+        document.getElementById('loginPanel').classList.remove('hidden');
+        document.getElementById('adminPanel').classList.add('hidden');
+        document.getElementById('juryPanel').classList.remove('active');
+        document.getElementById('navBar').classList.add('hidden');
+        window.history.pushState({}, document.title, window.location.pathname);
+    }
+    
+    function showAdminPanel() {
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('juryPanel').classList.remove('active');
+        document.getElementById('navBar').classList.remove('hidden');
+        document.getElementById('userNameDisplay').innerHTML = '👨‍🏫 Admin';
+        renderCriteriaConfigGrid();
+        renderGrillePreview();
+        renderAdminPanel();
+    }
+    
+    function renderAdminPanel() {
+        const container = document.getElementById('juryCardsContainer');
+        let html = '';
+        for (let jury of Object.keys(jurors)) {
+            if (jury === 'admin') continue;
+            const link = getJuryLink(jury);
+            const cardId = `qr-${jury.replace(/\s/g, '')}`;
+            html += `<div class="jury-card">
+                <button class="delete-jury-btn" onclick="deleteJury('${jury.replace(/'/g, "\\'")}')">🗑️</button>
+                <h3>👨‍⚖️ ${jury}</h3>
+                <div class="url">🔗 ${link}</div>
+                <div class="qr-container" id="${cardId}"></div>
+                <button class="btn-admin" onclick="copyToClipboard('${link}')">📋 Copier lien</button>
+                <button class="btn-admin btn-danger" onclick="resetJuryEvaluations('${jury.replace(/'/g, "\\'")}')">🗑️ Réinit évals</button>
+            </div>`;
+        }
+        container.innerHTML = html;
+        setTimeout(() => {
+            for (let jury of Object.keys(jurors)) {
+                if (jury === 'admin') continue;
+                const link = getJuryLink(jury);
+                const cardId = `qr-${jury.replace(/\s/g, '')}`;
+                const qrDiv = document.getElementById(cardId);
+                if (qrDiv && !qrDiv.hasChildNodes()) {
+                    new QRCode(qrDiv, { text: link, width: 150, height: 150 });
+                }
+            }
+        }, 100);
+        renderAdminTable();
+    }
+    
+    function renderAdminTable() {
+        const search = document.getElementById('adminSearch')?.value.toLowerCase() || '';
+        const themeFilter = document.getElementById('adminThemeFilter')?.value || '';
+        const minScore = parseFloat(document.getElementById('adminMinScore')?.value) || 0;
+        const container = document.getElementById('adminTableView');
+        let html = '<td><thead><tr><th>Projet</th><th>Thématique</th>';
+        for (let jury of Object.keys(jurors)) {
+            if (jury !== 'admin') html += `<th>${jury.split(' ')[0]}</th>`;
+        }
+        html += '<th>Moyenne générale</th><th>Détails</th></tr></thead><tbody>';
+        
+        let filtered = Object.entries(evaluationsData);
+        if (search) filtered = filtered.filter(([p, d]) => p.toLowerCase().includes(search) || d.thematique.toLowerCase().includes(search));
+        if (themeFilter) filtered = filtered.filter(([_, d]) => d.thematique === themeFilter);
+        
+        for (let [project, data] of filtered) {
+            let sum = 0, count = 0;
+            for (let jury of Object.keys(jurors)) {
+                if (jury === 'admin') continue;
+                let avg = data.evaluations[jury] ? data.evaluations[jury].moyenne : '-';
+                if (avg !== '-') { sum += avg; count++; }
+            }
+            let generalAvg = count > 0 ? (sum/count).toFixed(2) : '-';
+            if (minScore > 0 && generalAvg !== '-' && parseFloat(generalAvg) < minScore) continue;
+            html += `<tr><td><strong>${project}</strong></td><td>${data.thematique}</td>`;
+            for (let jury of Object.keys(jurors)) {
+                if (jury === 'admin') continue;
+                let avg = data.evaluations[jury] ? data.evaluations[jury].moyenne : '-';
+                html += `<td>${avg}</td>`;
+            }
+            html += `<td><strong>${generalAvg}</strong></td>
+                    <td><button class="btn-admin" style="padding:4px 8px;" onclick="alert(JSON.stringify(evaluationsData['${project}'].evaluations,null,2))">📊</button></td></tr>`;
+        }
+        if (filtered.length === 0) html += '<tr><td colspan="10">Aucune évaluation</td></tr>';
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+    
+    function renderCriteriaConfigGrid() {
+        const container = document.getElementById('criteriaConfigGrid');
+        if (!container) return;
+        let html = '';
+        grilleConfig.criteria.forEach(c => {
+            html += `<div class="criteria-config-item">
+                <label>Nom</label><input type="text" value="${c.name}" onchange="updateCriterion('${c.id}','name',this.value)">
+                <label>Icône</label><input type="text" value="${c.icon}" maxlength="2" style="width:60px" onchange="updateCriterion('${c.id}','icon',this.value)">
+                <button class="btn-admin" style="background:#ef4444" onclick="deleteCriterion('${c.id}')">🗑️</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderGrillePreview() {
+        const container = document.getElementById('grillePreview');
+        if (container) {
+            container.innerHTML = grilleConfig.criteria.map(c => `<div class="preview-item">${c.icon} ${c.name}</div>`).join('');
+        }
+    }
+    
+    function addCriterion() {
+        grilleConfig.criteria.push({ id: "c"+Date.now(), name: "Nouveau", icon: "⭐", order: grilleConfig.criteria.length+1 });
+        saveGrilleConfig();
+        renderCriteriaConfigGrid();
+        renderGrillePreview();
+    }
+    
+    function updateCriterion(id, field, value) {
+        let c = grilleConfig.criteria.find(c => c.id === id);
+        if (c) { c[field] = value; saveGrilleConfig(); renderGrillePreview(); }
+    }
+    
+    function deleteCriterion(id) {
+        if (grilleConfig.criteria.length <= 1) { alert("Minimum 1 critère"); return; }
+        grilleConfig.criteria = grilleConfig.criteria.filter(c => c.id !== id);
+        saveGrilleConfig();
+        renderCriteriaConfigGrid();
+        renderGrillePreview();
+    }
+    
+    function resetToDefaultGrille() {
+        grilleConfig.criteria = [
+            { id: "c1", name: "Créativité", icon: "🎨", order: 1 },
+            { id: "c2", name: "Technicité", icon: "⚙️", order: 2 },
+            { id: "c3", name: "Design", icon: "🎯", order: 3 },
+            { id: "c4", name: "Présentation", icon: "🎤", order: 4 },
+            { id: "c5", name: "Aboutissement", icon: "🏁", order: 5 }
+        ];
+        saveGrilleConfig();
+        renderCriteriaConfigGrid();
+        renderGrillePreview();
+        alert("Grille réinitialisée");
+    }
+    
+    function showJuryPanel() {
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('adminPanel').classList.add('hidden');
+        document.getElementById('juryPanel').classList.add('active');
+        document.getElementById('navBar').classList.remove('hidden');
+        document.getElementById('userNameDisplay').innerHTML = `👨‍⚖️ ${currentUser}`;
+        document.getElementById('welcomeBanner').innerHTML = `<h2>Bonjour ${currentUser} 👋</h2><p>Notes de 0 à 5 (décimaux ex: 4.5)</p>`;
+        renderDynamicCriteriaGrid();
+        renderJuryEvaluations();
+    }
+    
+    function renderDynamicCriteriaGrid() {
+        const container = document.getElementById('dynamicCriteriaGrid');
+        if (!container) return;
+        container.innerHTML = grilleConfig.criteria.map(c => `
+            <div class="criteria-card">
+                <div class="criteria-icon">${c.icon}</div>
+                <div class="criteria-label">${c.name}</div>
+                <input type="number" id="criteria_${c.id}" step="0.1" min="0" max="5" value="3">
+            </div>
+        `).join('');
+    }
+    
+    function getCriteriaValues() {
+        let values = {};
+        grilleConfig.criteria.forEach(c => {
+            let input = document.getElementById(`criteria_${c.id}`);
+            if (input) values[c.id] = parseFloat(input.value) || 0;
+        });
+        return values;
+    }
+    
+    function saveEvaluation() {
+        let project = document.getElementById('projectName').value.trim();
+        if (!project) { alert("Nom du projet requis"); return; }
+        let thematic = document.getElementById('thematic').value;
+        let target = document.getElementById('target').value.trim() || "Non spécifié";
+        let comments = document.getElementById('comments').value;
+        let values = getCriteriaValues();
+        let sum = 0, count = 0;
+        for (let v of Object.values(values)) { sum += v; count++; }
+        let moyenne = count > 0 ? sum / count : 0;
+        if (!evaluationsData[project]) evaluationsData[project] = { thematique: thematic, cible: target, evaluations: {} };
+        evaluationsData[project].evaluations[currentUser] = {
+            criteriaValues: values, moyenne: parseFloat(moyenne.toFixed(2)), commentaires: comments, date: new Date().toLocaleDateString()
+        };
+        saveData();
+        renderJuryEvaluations();
+        document.getElementById('projectName').value = '';
+        document.getElementById('target').value = '';
+        document.getElementById('comments').value = '';
+        grilleConfig.criteria.forEach(c => { let inp = document.getElementById(`criteria_${c.id}`); if(inp) inp.value = '3'; });
+        alert(`✅ ${project} enregistré`);
+    }
+    
+    function renderJuryEvaluations() {
+        const container = document.getElementById('myEvaluationsTable');
+        let html = '<tr><thead><tr><th>Projet</th><th>Thématique</th>' + grilleConfig.criteria.map(c => `<th>${c.icon} ${c.name}</th>`).join('') + '<th>Note</th><th>Commentaire</th><th></th></tr></thead><tbody>';
+        let found = false;
+        for (let [project, data] of Object.entries(evaluationsData)) {
+            if (data.evaluations[currentUser]) {
+                found = true;
+                let e = data.evaluations[currentUser];
+                html += `<tr><td><strong>${project}</strong></td><td>${data.thematique}</td>`;
+                grilleConfig.criteria.forEach(c => { html += `<td>${e.criteriaValues[c.id] || '-'}</td>`; });
+                html += `<td><span style="background:#667eea;color:white;padding:4px 10px;border-radius:20px;">${e.moyenne}</span></td>
+                        <td>${(e.commentaires || '').substring(0, 50)}</td>
+                        <td><button class="delete-eval" onclick="deleteEvaluation('${project}')">🗑️</button></td></tr>`;
+            }
+        }
+        if (!found) html += '<tr><td colspan="10">Aucune évaluation</td></tr>';
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+    
+    function deleteEvaluation(project) {
+        if (confirm(`Supprimer ${project} ?`)) {
+            delete evaluationsData[project].evaluations[currentUser];
+            if (Object.keys(evaluationsData[project].evaluations).length === 0) delete evaluationsData[project];
+            saveData();
+            renderJuryEvaluations();
+        }
+    }
+    
+    function copyToClipboard(text) { navigator.clipboard.writeText(text); alert("Lien copié !"); }
+    
+    loadData();
+    updateLoginSelect();
+    checkUrlToken();
+</script>
+</body>
+</html>
